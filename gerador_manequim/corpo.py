@@ -52,7 +52,7 @@ def preparar(PROJ):
         [156.0,  6.8,  6.1,  6.5, -2.4, 2.0],
     ])
     SEIO_TPL = np.array([10.5, 4.0, 122.0, 5.0, 5.5, 4.0])
-    GLUTEO_TPL = np.array([8.5, 5.5, 85.0, 5.5, 9.5, 7.5])
+    GLUTEO_TPL = np.array([9.5, 5.5, 85.0, 4.0, 9.5, 7.5])
     PERNA_TPL = np.array([
         [97.0, -7.5, -1.0, 4.5,  5.5],
         [92.0, -9.0, -1.0, 8.0,  9.5],
@@ -163,10 +163,12 @@ def preparar(PROJ):
         G = np.array([8.0 * R_Q, 3.0 * R_Q, mz(87.0), 6.0 * R_Q, 8.0 * SVL, 5.0 * SVL])
     else:
         S = np.array([10.5 * ab / TPL_ABERTURA, 4.0 * R_B, LM["busto"], 5.0 * R_B, 5.5 * SVB, 4.0 * SVB])
-        G = np.array([8.5 * R_Q, 5.5 * R_Q, mz(85.0), 5.5 * R_Q, 9.5 * SVL, 7.5 * SVL])
+        G = np.array([9.5 * R_Q, 5.5 * R_Q, mz(85.0), 4.0 * R_Q, 9.5 * SVL, 7.5 * SVL])
 
-    _LZ = [97.0, 82.0, 77.0, 60.0, 46.8, 34.0, 15.0, 9.0, 5.0]
-    _LR = [razao("coxa"), razao("coxa"), razao("coxa"), razao("meia_coxa"), razao("joelho"),
+    R_PERNAS_Q = ALVO["quadril"] / 108.0
+    # topo da coxa (dentro da região do quadril) acompanha o quadril; a coxa propriamente dita, a coxa
+    _LZ = [97.0, 86.0, 80.0, 77.0, 60.0, 46.8, 34.0, 15.0, 9.0, 5.0]
+    _LR = [R_PERNAS_Q, R_PERNAS_Q, razao("coxa"), razao("coxa"), razao("meia_coxa"), razao("joelho"),
            razao("panturrilha"), razao("canela"), razao("tornozelo"), razao("tornozelo")]
     P = PERNA_TPL.copy()
     rl = np.interp(PERNA_TPL[:, 0], _LZ[::-1], _LR[::-1])
@@ -174,6 +176,7 @@ def preparar(PROJ):
     R_PERNAS = ALVO["quadril"] / 108.0
     P[:, 1] *= R_PERNAS ** 0.8; P[:, 2] *= R_PERNAS
     P[:, 0] = mapz(PERNA_TPL[:, 0])
+    restringir_pernas(P, mz(84.0))
 
     KU = PROJ["usados"]["alt_cotovelo"] / TPL_BRACO_COT
     KF = (PROJ["usados"]["comp_braco"] - PROJ["usados"]["alt_cotovelo"]) / (TPL_BRACO_COMP - TPL_BRACO_COT)
@@ -306,3 +309,29 @@ def contorno_fatia(f2, xs, ys):
     t = a[I, J] / (a[I, J] - b[I, J])
     pts.append(np.column_stack([xs[I], ys[J] + t * (ys[J + 1] - ys[J])]))
     return np.vstack(pts)
+
+
+def perim_elipse(a, b):
+    h = ((a - b) / (a + b)) ** 2
+    return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
+
+
+def restringir_pernas(P, z_max, folga=0.6):
+    """Mantém uma folga entre as coxas (não se fundem no meio): onde a coxa passaria do meio do corpo,
+    a seção fica mais estreita e mais funda, com o mesmo contorno."""
+    for i in range(len(P)):
+        if P[i, 0] > z_max:
+            continue
+        a, b, cx = P[i, 3], P[i, 4], abs(P[i, 1])
+        lim = cx - folga
+        if a > lim > 0:
+            alvo = perim_elipse(a, b)
+            lo, hi = b, 3 * b
+            for _ in range(40):
+                mid = 0.5 * (lo + hi)
+                if perim_elipse(lim, mid) < alvo:
+                    lo = mid
+                else:
+                    hi = mid
+            P[i, 3], P[i, 4] = lim, 0.5 * (lo + hi)
+    return P

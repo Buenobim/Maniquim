@@ -54,6 +54,23 @@ OBRIGATORIAS = ["busto", "cintura", "quadril", "pescoco", "ombro", "braco", "cot
 
 OPCOES_PADRAO = {"sexo": "F", "escala": 5, "lado": "D", "com_braco": "Sim", "abducao": 15.0}
 
+# Modelos estatísticos da base ANSUR II (gerados por ansur.py). Opcional: sem o arquivo,
+# o gerador volta às proporções do corpo-base.
+import json as _json, os as _os
+_ARQ_ANSUR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "dados", "ansur2_modelos.json")
+ANSUR = _json.load(open(_ARQ_ANSUR, encoding="utf-8")) if _os.path.exists(_ARQ_ANSUR) else None
+
+
+def ansur_prever(sexo, y, valores):
+    """Previsão (valor, desvio-padrão do resíduo) pela regressão da ANSUR II, ou None."""
+    if not ANSUR:
+        return None
+    r = ANSUR[sexo]["regressoes"].get(y)
+    if not r or any(not isinstance(valores.get(x), float) for x in r["x"]):
+        return None
+    v = r["coef"][0] + sum(c * valores[x] for c, x in zip(r["coef"][1:], r["x"]))
+    return v, r["dp_residuo"]
+
 
 def _norm(s):
     s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower()
@@ -146,12 +163,17 @@ def montar_projeto(nome, med):
             m[k] = round(valor, 1); estimadas.append(k)
     if sexo == "M":
         estima("peq_quadril", m["cintura"] + 0.45 * (m["quadril"] - m["cintura"]))
-        estima("coxa", 0.57 * m["quadril"])
     else:
         estima("peq_quadril", m["cintura"] + 0.283 * (m["quadril"] - m["cintura"]))
-        estima("coxa", 61.0 / 108.0 * m["quadril"])
-    estima("panturrilha", 37.0 / 37.5 * m["joelho"])
-    estima("tornozelo", 21.5 / 37.5 * m["joelho"])
+    fonte_est = {}
+    for k, padrao in (("coxa", (0.57 if sexo == "M" else 61.0 / 108.0) * m["quadril"]),
+                      ("panturrilha", 37.0 / 37.5 * m["joelho"]), ("tornozelo", 21.5 / 37.5 * m["joelho"])):
+        if isinstance(m.get(k), float):
+            continue
+        pv = ansur_prever(sexo, k, m)
+        if pv:
+            fonte_est[k] = "ANSUR II (±%s)" % _f(pv[1])
+        estima(k, pv[0] if pv else padrao)
     m["meia_coxa"] = round(48.0 / 61.0 * m["coxa"], 1)
     m["canela"] = round(22.5 / 21.5 * m["tornozelo"], 1)
 
@@ -208,18 +230,24 @@ def montar_projeto(nome, med):
     usados["abertura_busto"] = round(2 * hor, 1)
     L["ombro"] = L["c7"] - 4.5 * sv
     L["topo"] = L["c7"] + 6.5 * sv
-    # cava: precisa ficar entre o busto e a 7ª cervical
+    # cava: precisa ficar entre o busto e a 7ª cervical.
+    # Com a ANSUR II: posição da axila entre o gancho e a 7ª cervical (percentis 0,5–99,5 %).
     cava_pad = L["busto"] + 0.33 * (L["jugular"] - L["busto"])
     lo, hi = L["busto"] + 2.0, L["c7"] - 13.0 * sv
+    if ANSUR:
+        pr = ANSUR[sexo]["proporcoes"]["cava"]; vao = L["c7"] - L["gancho"]
+        cava_pad = max(L["gancho"] + pr["p50"] * vao, lo)
+        lo = max(lo, L["gancho"] + pr["p0_5"] * vao); hi = L["gancho"] + pr["p99_5"] * vao
     if isinstance(m.get("alt_cava"), float):
         cand = L["cintura"] + m["alt_cava"] * f
         if lo <= cand <= hi:
             L["cava"] = cand
         else:
             L["cava"] = min(max(cava_pad, lo), hi)
-            avisos.append("Altura da cava: %s cm acima da cintura põe a axila %s. Usei cerca de %s." %
-                          (_f(m["alt_cava"]), "na altura do pescoço" if cand > hi else "abaixo do busto",
-                           _f(round(L["cava"] - L["cintura"]))))
+            onde = "alta demais (perto do pescoço)" if cand > hi else "baixa demais (perto do busto)"
+            base = " (fora de 99% das pessoas da ANSUR II)" if ANSUR else ""
+            avisos.append("Altura da cava: %s cm acima da cintura deixa a axila %s%s. Usei cerca de %s." %
+                          (_f(m["alt_cava"]), onde, base, _f(round(L["cava"] - L["cintura"]))))
     else:
         L["cava"] = cava_pad; estimadas.append("alt_cava")
     usados["alt_cava"] = round(L["cava"] - L["cintura"], 1)
@@ -239,8 +267,27 @@ def montar_projeto(nome, med):
         if abs(m["oo_frente"] - esperado) > 4.0:
             avisos.append("Ombro a ombro (%s) não fecha com pescoço + ombro (≈ %s); prevaleceu o ombro."
                           % (_f(m["oo_frente"]), _f(round(esperado))))
-    if m["pescoco"] > (44.0 if sexo == "M" else 40.0):
+    estat = {}
+    pv = ansur_prever(sexo, "pescoco", m)
+    if pv:
+        z = (m["pescoco"] - pv[0]) / pv[1]
+        estat["pescoco"] = {"esperado": round(pv[0], 1), "dp": pv[1], "z": round(z, 1)}
+        if abs(z) > 2.5:
+            avisos.append("Pescoço %s cm é atípico para o busto, braço e pulso informados: o esperado é "
+                          "%s ± %s cm (ANSUR II). Mantido como na tabela; vale remedir." %
+                          (_f(m["pescoco"]), _f(round(pv[0], 1)), _f(pv[1])))
+    elif m["pescoco"] > (44.0 if sexo == "M" else 40.0):
         avisos.append("Pescoço %s cm mantido como na tabela (acima da média)." % _f(m["pescoco"]))
+    pv = ansur_prever(sexo, "gancho", {"v_cintura_gancho": m["cint_gancho"], "quadril": m["quadril"]})
+    if pv:
+        estat["gancho"] = {"esperado": round(pv[0], 1), "dp": pv[1]}
+        if isinstance(m.get("gancho"), float):
+            z = (m["gancho"] - pv[0]) / pv[1]; estat["gancho"]["z"] = round(z, 1)
+            if abs(z) > 2.5:
+                avisos.append("Gancho %s cm atípico para cintura ao gancho %s e quadril %s: o esperado é "
+                              "%s ± %s cm (ANSUR II). Vale remedir." %
+                              (_f(m["gancho"]), _f(m["cint_gancho"]), _f(m["quadril"]),
+                               _f(round(pv[0], 1)), _f(pv[1])))
 
     # --- braço ---
     if m["comp_braco"] <= m["alt_cotovelo"] + 10:
@@ -249,13 +296,15 @@ def montar_projeto(nome, med):
 
     if isinstance(m.get("altura_total"), float):
         r = L["c7"] / m["altura_total"]
-        if not 0.80 <= r <= 0.89:
+        pc = ANSUR[sexo]["proporcoes"]["c7_estatura"] if ANSUR else {"p0_5": 0.80, "p99_5": 0.89}
+        if not pc["p0_5"] - 0.01 <= r <= pc["p99_5"] + 0.01:
             avisos.append("Altura total %s não combina com as alturas do tronco (7ª cervical a %s cm)."
                           % (_f(m["altura_total"]), _f(round(L["c7"], 1))))
 
-    rot_est = [ROTULO.get(k, k) for k in estimadas if k in ROTULO]
+    rot_est = [ROTULO.get(k, k) + (" pela " + fonte_est[k] if k in fonte_est else "")
+               for k in estimadas if k in ROTULO]
     if rot_est:
-        avisos.append("Estimadas por proporção (não informadas): %s." % ", ".join(rot_est))
+        avisos.append("Estimadas (não informadas): %s." % ", ".join(rot_est))
 
     alvos = {k: m[k] for k in ("busto", "cintura", "quadril", "peq_quadril", "pescoco", "braco",
                                "cotovelo", "pulso", "joelho", "gancho", "coxa", "meia_coxa",
@@ -265,7 +314,7 @@ def montar_projeto(nome, med):
         "com_braco": com_braco, "abducao": abducao,
         "medidas": {k: v for k, v in med.items() if isinstance(v, float)},
         "alvos": alvos, "estimadas": estimadas, "landmarks": {k: round(v, 3) for k, v in L.items()},
-        "usados": usados, "larg_ombro": larg_ombro, "avisos": avisos,
+        "usados": usados, "larg_ombro": larg_ombro, "avisos": avisos, "estatistica": estat,
     }
 
 
@@ -343,11 +392,21 @@ def campos_para_web():
                                            "padrao": OPCOES_PADRAO.get(k)} for r, k in LINHAS_OPCOES]}
 
 
+def faixas_para(sexo):
+    f = dict(FAIXAS)
+    if ANSUR:
+        f.update({k: tuple(v) for k, v in ANSUR[sexo]["faixas"].items() if k in f})
+    return f
+
+
 def conferir_faixas(med):
+    sexo = "M" if str(med.get("sexo", "F")).strip().upper()[:1] in ("M", "H") else "F"
+    da_ansur = set(ANSUR[sexo]["faixas"]) if ANSUR else set()
     fora = []
-    for k, (lo, hi) in FAIXAS.items():
+    for k, (lo, hi) in faixas_para(sexo).items():
         v = med.get(k)
         if isinstance(v, float) and not lo <= v <= hi:
             fora.append({"chave": k, "valor": v, "faixa": [lo, hi],
-                         "texto": "%s = %s fora da faixa usual (%s a %s cm)." % (ROTULO[k], _f(v), lo, hi)})
+                         "texto": "%s = %s fora da faixa de 99%% das pessoas%s (%s a %s cm)." %
+                                  (ROTULO[k], _f(v), " da ANSUR II" if k in da_ansur else "", _f(lo), _f(hi))})
     return fora

@@ -392,6 +392,7 @@ for it in range(N_IT):
         P[idx(P, MED_PERNA_ANEL[k]), 3:5] *= r
         if k == "tornozelo":
             P[idx(P, mz(5.0)), 3:5] *= r
+    _corpo.restringir_pernas(P, mz(84.0))
 
 # plano da cava refeito com a largura real do tronco já calibrado
 def _a_em(z):

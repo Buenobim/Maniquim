@@ -51,11 +51,11 @@
   "pulso": 15.5,
   "joelho": 37.5,
   "gancho": 74.5,
-  "coxa": 61.0,
-  "meia_coxa": 48.0,
-  "panturrilha": 37.0,
-  "canela": 22.5,
-  "tornozelo": 21.5
+  "coxa": 65.2,
+  "meia_coxa": 51.3,
+  "panturrilha": 38.3,
+  "canela": 22.8,
+  "tornozelo": 21.8
  },
  "estimadas": [
   "coxa",
@@ -73,7 +73,7 @@
   "busto": 121.574,
   "ombro": 142.0,
   "topo": 153.0,
-  "cava": 126.829,
+  "cava": 129.69,
   "chao": 0.0,
   "tornozelo": 9.0,
   "coto": 66.0
@@ -89,15 +89,27 @@
   "alt_costas": 36.0,
   "alt_busto": 20.0,
   "abertura_busto": 21.0,
-  "alt_cava": 16.3,
+  "alt_cava": 19.2,
   "comp_braco": 57.5,
   "alt_cotovelo": 33.0
  },
  "larg_ombro": 18.2436625529515,
  "avisos": [
   "Cintura ao solo: 118 não fecha com entrepernas 80,5 + cintura ao gancho 30 (= 110,5). Usei 110,5.",
-  "Altura da cava: 26 cm acima da cintura põe a axila na altura do pescoço. Usei cerca de 16.",
-  "Pescoço 43 cm mantido como na tabela (acima da média).",
-  "Estimadas por proporção (não informadas): Coxa, Panturrilha, Tornozelo."
- ]
+  "Altura da cava: 26 cm acima da cintura deixa a axila alta demais (perto do pescoço) (fora de 99% das pessoas da ANSUR II). Usei cerca de 19.",
+  "Pescoço 43 cm é atípico para o busto, braço e pulso informados: o esperado é 36,8 ± 1,3 cm (ANSUR II). Mantido como na tabela; vale remedir.",
+  "Estimadas (não informadas): Coxa pela ANSUR II (±1,8), Panturrilha pela ANSUR II (±1,7), Tornozelo pela ANSUR II (±1,1)."
+ ],
+ "estatistica": {
+  "pescoco": {
+   "esperado": 36.8,
+   "dp": 1.335,
+   "z": 4.7
+  },
+  "gancho": {
+   "esperado": 74.9,
+   "dp": 2.383,
+   "z": -0.2
+  }
+ }
 }

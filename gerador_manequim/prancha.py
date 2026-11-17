@@ -77,8 +77,14 @@ def gerar(pasta):
         lin_c.append((NOMES[k], _fmt(t) if t is not None else "estim.", _fmt(v), _fmt(v * esc) + " mm"))
         if t is not None and abs(v - t) > 1.0:
             dest_c.append(len(lin_c) - 1)
-            extra = " Para chegar no valor da tabela seria preciso achatar barriga ou bumbum; vale remedir." \
-                if k == "gancho" else ""
+            extra = ""
+            if k == "gancho":
+                st = proj.get("estatistica", {}).get("gancho")
+                if st and abs(st.get("z", 9)) <= 2.5:
+                    extra = (" Pela ANSUR II o esperado é %s ± %s cm, então a tabela é plausível; a diferença vem "
+                             "do formato do bumbum e da barriga do modelo." % (_fmt(st["esperado"]), _fmt(st["dp"])))
+                else:
+                    extra = " Para chegar no valor da tabela seria preciso achatar barriga ou bumbum; vale remedir."
             avisos_pos.append("%s: o modelo deu %s cm (tabela %s).%s" % (NOMES[k], _fmt(v), _fmt(t), extra))
     lin_e = [(NOMES[k], _fmt(tab[k]) if k in tab else "—", _fmt(med[k]), _fmt(med[k] * esc) + " mm")
              for k in ("coxa", "meia_coxa", "panturrilha", "canela", "tornozelo") if k in med]

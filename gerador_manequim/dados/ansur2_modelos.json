@@ -1,0 +1,376 @@
+{
+ "fonte": "ANSUR II (2012), Penn State OpenLab - https://www.openlab.psu.edu/ansur2/",
+ "aviso": "População militar dos EUA; referência estatística, não padrão brasileiro.",
+ "F": {
+  "n": 1986,
+  "faixas": {
+   "busto": [
+    77.3,
+    119.6
+   ],
+   "quadril": [
+    85.1,
+    124.8
+   ],
+   "pescoco": [
+    32.6,
+    43.2
+   ],
+   "braco": [
+    24.0,
+    39.8
+   ],
+   "pulso": [
+    13.6,
+    17.8
+   ],
+   "coxa": [
+    48.8,
+    78.2
+   ],
+   "panturrilha": [
+    30.4,
+    45.4
+   ],
+   "tornozelo": [
+    18.2,
+    26.0
+   ],
+   "entrepernas": [
+    67.4,
+    90.7
+   ],
+   "altura_total": [
+    146.4,
+    179.0
+   ],
+   "ombro": [
+    11.1,
+    16.4
+   ],
+   "alt_cotovelo": [
+    26.6,
+    35.9
+   ],
+   "comp_braco": [
+    47.0,
+    63.2
+   ]
+  },
+  "media": {
+   "busto": 94.7,
+   "quadril": 102.1,
+   "pescoco": 37.1,
+   "braco": 30.6,
+   "pulso": 15.5,
+   "coxa": 61.6,
+   "panturrilha": 37.3,
+   "tornozelo": 21.6,
+   "entrepernas": 78.2,
+   "altura_total": 162.8,
+   "ombro": 13.5,
+   "alt_cotovelo": 31.1,
+   "comp_braco": 55.3
+  },
+  "regressoes": {
+   "coxa": {
+    "y": "coxa",
+    "x": [
+     "quadril",
+     "braco",
+     "entrepernas"
+    ],
+    "coef": [
+     -8.38531,
+     0.57687,
+     0.35473,
+     0.00317
+    ],
+    "dp_residuo": 1.79,
+    "r2": 0.897
+   },
+   "panturrilha": {
+    "y": "panturrilha",
+    "x": [
+     "quadril",
+     "braco",
+     "pulso",
+     "entrepernas"
+    ],
+    "coef": [
+     2.01445,
+     0.15118,
+     0.24053,
+     0.86803,
+     -0.01169
+    ],
+    "dp_residuo": 1.747,
+    "r2": 0.625
+   },
+   "tornozelo": {
+    "y": "tornozelo",
+    "x": [
+     "pulso",
+     "quadril",
+     "entrepernas"
+    ],
+    "coef": [
+     2.56227,
+     1.00249,
+     0.04925,
+     -0.01964
+    ],
+    "dp_residuo": 1.093,
+    "r2": 0.461
+   },
+   "pescoco": {
+    "y": "pescoco",
+    "x": [
+     "busto",
+     "braco",
+     "pulso"
+    ],
+    "coef": [
+     13.24555,
+     0.08732,
+     0.10448,
+     0.80175
+    ],
+    "dp_residuo": 1.335,
+    "r2": 0.539
+   },
+   "gancho": {
+    "y": "gancho",
+    "x": [
+     "v_cintura_gancho",
+     "quadril"
+    ],
+    "coef": [
+     7.33074,
+     1.06545,
+     0.32975
+    ],
+    "dp_residuo": 2.383,
+    "r2": 0.685
+   }
+  },
+  "proporcoes": {
+   "cava": {
+    "p0_5": 0.6844,
+    "p50": 0.7453,
+    "p99_5": 0.7995
+   },
+   "busto_pt": {
+    "p0_5": 0.5309,
+    "p50": 0.6355,
+    "p99_5": 0.7202
+   },
+   "jugular": {
+    "p0_5": 0.8427,
+    "p50": 0.8924,
+    "p99_5": 0.943
+   },
+   "ombro_pt": {
+    "p0_5": 0.8469,
+    "p50": 0.9016,
+    "p99_5": 0.9531
+   },
+   "c7_estatura": {
+    "p0_5": 0.8389,
+    "p50": 0.8571,
+    "p99_5": 0.8741
+   },
+   "gancho_estatura": {
+    "p0_5": 0.4415,
+    "p50": 0.4797,
+    "p99_5": 0.5202
+   }
+  }
+ },
+ "M": {
+  "n": 4082,
+  "faixas": {
+   "busto": [
+    85.8,
+    129.0
+   ],
+   "quadril": [
+    84.6,
+    124.3
+   ],
+   "pescoco": [
+    37.7,
+    51.0
+   ],
+   "braco": [
+    27.4,
+    45.6
+   ],
+   "pulso": [
+    15.4,
+    20.1
+   ],
+   "coxa": [
+    48.4,
+    79.6
+   ],
+   "panturrilha": [
+    32.3,
+    47.9
+   ],
+   "tornozelo": [
+    19.5,
+    27.3
+   ],
+   "entrepernas": [
+    73.0,
+    97.1
+   ],
+   "altura_total": [
+    158.0,
+    194.6
+   ],
+   "ombro": [
+    12.3,
+    17.8
+   ],
+   "alt_cotovelo": [
+    29.1,
+    38.4
+   ],
+   "comp_braco": [
+    52.7,
+    68.7
+   ]
+  },
+  "media": {
+   "busto": 105.9,
+   "quadril": 102.0,
+   "pescoco": 43.5,
+   "braco": 35.8,
+   "pulso": 17.6,
+   "coxa": 62.5,
+   "panturrilha": 39.2,
+   "tornozelo": 22.9,
+   "entrepernas": 84.6,
+   "altura_total": 175.6,
+   "ombro": 15.0,
+   "alt_cotovelo": 33.5,
+   "comp_braco": 60.3
+  },
+  "regressoes": {
+   "coxa": {
+    "y": "coxa",
+    "x": [
+     "quadril",
+     "braco",
+     "entrepernas"
+    ],
+    "coef": [
+     -8.41247,
+     0.61281,
+     0.32852,
+     -0.0392
+    ],
+    "dp_residuo": 1.779,
+    "r2": 0.907
+   },
+   "panturrilha": {
+    "y": "panturrilha",
+    "x": [
+     "quadril",
+     "braco",
+     "pulso",
+     "entrepernas"
+    ],
+    "coef": [
+     3.32266,
+     0.20352,
+     0.1754,
+     0.6719,
+     -0.03484
+    ],
+    "dp_residuo": 1.674,
+    "r2": 0.682
+   },
+   "tornozelo": {
+    "y": "tornozelo",
+    "x": [
+     "pulso",
+     "quadril",
+     "entrepernas"
+    ],
+    "coef": [
+     2.52999,
+     0.68909,
+     0.07947,
+     0.00213
+    ],
+    "dp_residuo": 0.96,
+    "r2": 0.57
+   },
+   "pescoco": {
+    "y": "pescoco",
+    "x": [
+     "busto",
+     "braco",
+     "pulso"
+    ],
+    "coef": [
+     13.22878,
+     0.14468,
+     0.12313,
+     0.59707
+    ],
+    "dp_residuo": 1.607,
+    "r2": 0.608
+   },
+   "gancho": {
+    "y": "gancho",
+    "x": [
+     "v_cintura_gancho",
+     "quadril"
+    ],
+    "coef": [
+     -0.41176,
+     0.95998,
+     0.41621
+    ],
+    "dp_residuo": 2.56,
+    "r2": 0.699
+   }
+  },
+  "proporcoes": {
+   "cava": {
+    "p0_5": 0.6669,
+    "p50": 0.7196,
+    "p99_5": 0.7699
+   },
+   "busto_pt": {
+    "p0_5": 0.5981,
+    "p50": 0.6632,
+    "p99_5": 0.7281
+   },
+   "jugular": {
+    "p0_5": 0.8382,
+    "p50": 0.8829,
+    "p99_5": 0.9255
+   },
+   "ombro_pt": {
+    "p0_5": 0.8303,
+    "p50": 0.8858,
+    "p99_5": 0.937
+   },
+   "c7_estatura": {
+    "p0_5": 0.8452,
+    "p50": 0.864,
+    "p99_5": 0.8805
+   },
+   "gancho_estatura": {
+    "p0_5": 0.4473,
+    "p50": 0.4811,
+    "p99_5": 0.5224
+   }
+  }
+ }
+}

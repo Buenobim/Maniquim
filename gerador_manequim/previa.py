@@ -146,6 +146,7 @@ class Corpo:
         for k, tz in Pn.items():
             i = int(np.argmin(np.abs(self.P[:, 0] - mz(tz))))
             self.P[i, 3:5] *= A[k] / ellipse_perim(self.P[i, 3], self.P[i, 4])
+        corpo.restringir_pernas(self.P, mz(84.0))
         maps = self.c["maps"]
         for k, ts in (("braco", 15.0), ("cotovelo", 33.0), ("pulso", 55.0)):
             i = int(np.argmin(np.abs(self.B[:, 0] - float(maps(ts)))))
