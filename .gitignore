@@ -1,0 +1,11 @@
+# Repositório do manequim: só as pastas do manequim (o resto da pasta 3D_GPX é outro projeto)
+/*
+!/.gitignore
+!/README.md
+!/gerador_manequim/
+!/manequim_giovanna_1-5/
+
+__pycache__/
+*.pyc
+log_blender.txt
+~$*.xlsx
